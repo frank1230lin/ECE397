@@ -1,6 +1,8 @@
-function sampleseq=randsequentialsample(sequence,sampleLength)
+function sampleseq=randsequentialsample(sequence,sampleLength,distribution)
     totalLength=length(sequence);
-    sampleseqstart=randi(totalLength);
+    seed=RandStream('mlfg6331_64');
+    sampleseqstart=datasample(seed,1:totalLength,1,'Weights',distribution);
+    %sampleseqstart=randi(totalLength);
     sampleseq=zeros(1,sampleLength);
     
     if sampleseqstart<=(totalLength-sampleLength+1)

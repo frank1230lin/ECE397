@@ -1,5 +1,6 @@
 clc
 clear all
+close all
 
 % Entire sequence length
 L=100;
@@ -21,10 +22,14 @@ sequence=randi([0,3],1,L);
 sequence_dna=translation_int_char_vec(sequence);
 disp(sequence_dna);
 
+% Generate shift distribution
+distribution_temp=rand(1,L);
+distribution=distribution_temp/sum(distribution_temp);
+
 % Randomly sample obsevations
 sample_sequence=zeros(s_num,s);
 for i=1:s_num
-    sample_sequence(i,:)=randsequentialsample(sequence,s);
+    sample_sequence(i,:)=randsequentialsample(sequence,s,distribution);
 end
 
 % Translate the samples into dna format
@@ -43,4 +48,9 @@ swap_sample_sequence=swap_matrix(sample_sequence,p);
 swap_sample_sequence_vecspace=translation_int_vecspace_matrix(swap_sample_sequence);
 [swap_sample_mean,swap_sample_cov1,swap_sample_cov2,swap_sample_cov3]=estimate_mean_cov(swap_sample_sequence_vecspace);
 
+[inverse_sequence,inverse_p]=inverse_map_ADMM(swap_sample_mean,swap_sample_cov1,swap_sample_cov2,swap_sample_cov3,L,s);
 
+inverse_sequence_detect=ATCG_detect(real(inverse_sequence).');
+align_inverse_sequence_detect=align_sequence(inverse_sequence_detect,sequence);
+
+wrong=sum((sequence-align_inverse_sequence_detect)~=0);
